@@ -1,4 +1,5 @@
 import HttpError from "../helpers/HttpError.js";
+import { createContactSchema, updateContactSchema } from "../schemas/contactsSchemas.js";
 import { listContacts, getContactById, addContact, updateContactById, removeContact } from "../services/contactsServices.js";
 
 export const getAllContacts = async (req, res, next) => {
@@ -7,9 +8,6 @@ export const getAllContacts = async (req, res, next) => {
         res.json(result);
     } catch (error) {
         next(error)
-        // res.status(500).json({
-        //     message: "Server error"
-        // })
     }
 };
 
@@ -19,21 +17,54 @@ export const getOneContact = async (req, res, next) => {
         const result = await getContactById(id);
         if(!result){
             throw HttpError(404)
-        //    return res.status(404).json({
-        //         message: "Not found"
-        //     })
         }
         res.json(result);
     } catch (error) {
         next(error)
-        // res.status(500).json({
-        //     message: "Server error"
-        // })
     }
 };
 
-export const deleteContact = (req, res) => {};
+export const deleteContact = async (req, res, next) => {
+    try {
+        const {id} = req.params;
+        const result = await removeContact(id);
+        if(!result){
+            throw HttpError(404)
+        }
+        res.json({
+            message: `${result.name} was deleted`
+        });
+    } catch (error) {
+        next(error)
+    }
+};
 
-export const createContact = (req, res) => {};
+export const createContact = async (req, res, next) => {
+    try {
+        const {error} = createContactSchema.validate(req.body);
+        if(error){
+            throw HttpError(400)
+        }
+        const result = await addContact(req.body);
+        res.status(201).json(result);
+    } catch (error) {
+        next(error)
+    }
+};
 
-export const updateContact = (req, res) => {};
+export const updateContact = async (req, res, next) => {
+    try {
+        const {error} = updateContactSchema.validate(req.body);
+        if(error){
+            throw HttpError(400)
+        }
+        const {id} = req.params;
+        const result = await updateContactById(id, req.body);
+        if(!result){
+            throw HttpError(404)
+        }
+        res.json(result);
+    } catch (error) {
+        next(error)
+    }
+};
