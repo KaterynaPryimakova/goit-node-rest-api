@@ -31,9 +31,7 @@ export const deleteContact = async (req, res, next) => {
         if(!result){
             throw HttpError(404)
         }
-        res.json({
-            message: `${result.name} was deleted`
-        });
+        res.json(result);
     } catch (error) {
         next(error)
     }
@@ -43,7 +41,7 @@ export const createContact = async (req, res, next) => {
     try {
         const {error} = createContactSchema.validate(req.body);
         if(error){
-            throw HttpError(400)
+            throw HttpError(400, error.message)
         }
         const result = await addContact(req.body);
         res.status(201).json(result);
@@ -56,10 +54,14 @@ export const updateContact = async (req, res, next) => {
     try {
         const {error} = updateContactSchema.validate(req.body);
         if(error){
-            throw HttpError(400)
+            throw HttpError(400, error.message)
         }
         const {id} = req.params;
-        const result = await updateContactById(id, req.body);
+        const data = req.body;
+        if(!data || Object.keys(data).length === 0){
+            throw HttpError(400, "Body must have at least one field")
+        }
+        const result = await updateContactById(id, data);
         if(!result){
             throw HttpError(404)
         }
