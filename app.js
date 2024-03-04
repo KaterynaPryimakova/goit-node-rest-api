@@ -1,13 +1,18 @@
 import express from "express";
-import morgan from "morgan";
+import logger from "morgan";
 import cors from "cors";
 import mongoose from "mongoose";
+import dotevn from "dotenv";
 
 import contactsRouter from "./routes/contactsRouter.js";
 
+dotevn.config();
+
 const app = express();
 
-app.use(morgan("tiny"));
+const formatLogger = app.get("env") === "dev" ? "dev" : "short";
+
+app.use(logger(formatLogger));
 app.use(cors());
 app.use(express.json());
 
@@ -22,16 +27,17 @@ app.use((err, req, res, next) => {
     res.status(status).json({ message });
 });
 
-app.listen(3000, () => {
-    console.log("Server is running. Use our API on port: 3000");
-});
-
-const DB_HOST =
-    "mongodb+srv://Kat:jnUnn8Aq65IwxwEK@cluster0.s9iqugu.mongodb.net/db-contacts?retryWrites=true&w=majority&appName=Cluster0";
+const { DB_HOST, PORT = 3000 } = process.env;
 
 mongoose
     .connect(DB_HOST)
-    .then(() => console.log("Database connection successful"))
-    .catch((error) =>
-        console.log(`Server not running. Error message: ${error.message}`)
-    );
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server is running. Use our API on port: ${PORT}`);
+        });
+        console.log("Database connection successful");
+    })
+    .catch((error) => {
+        console.log(`Server not running. Error message: ${error.message}`);
+        process.exit(1);
+    });
