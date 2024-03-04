@@ -2,11 +2,9 @@ import express from "express";
 import logger from "morgan";
 import cors from "cors";
 import mongoose from "mongoose";
-import dotevn from "dotenv";
+import "dotenv/config";
 
 import contactsRouter from "./routes/contactsRouter.js";
-
-dotevn.config();
 
 const app = express();
 
@@ -38,6 +36,6 @@ mongoose
         console.log("Database connection successful");
     })
     .catch((error) => {
-        console.log(`Server not running. Error message: ${error.message}`);
+        console.error(`Server not running. Error message: ${error.message}`);
         process.exit(1);
     });
