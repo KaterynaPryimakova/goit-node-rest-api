@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { phonePattern } from "../constants/contactConstants.js";
+import { handleMongooseError } from "../helpers/handleMongooseError.js";
 
 const contactSchema = new Schema(
     {
@@ -23,6 +24,8 @@ const contactSchema = new Schema(
     },
     { versionKey: false, timestamps: true }
 );
+
+contactSchema.post("save", handleMongooseError);
 
 const Contact = model("contact", contactSchema);
 
