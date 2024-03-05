@@ -9,10 +9,12 @@ const getContactById = (id) => ContactModel.findById(id);
 const updateContactById = (id, data) =>
     ContactModel.findByIdAndUpdate(id, data, { new: true });
 
+const removeContact = (id) => ContactModel.findByIdAndDelete(id);
+
 export default {
     listContacts,
     getContactById,
     addContact,
     updateContactById,
-    // removeContact,
+    removeContact,
 };
