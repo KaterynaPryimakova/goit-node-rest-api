@@ -7,7 +7,7 @@ const addContact = (data) => ContactModel.create(data);
 const getContactById = (id) => ContactModel.findById(id);
 
 const updateContactById = (id, data) =>
-    ContactModel.findByIdAndUpdate(id, data, { new: true });
+    ContactModel.findByIdAndUpdate(id, data);
 
 const removeContact = (id) => ContactModel.findByIdAndDelete(id);
 

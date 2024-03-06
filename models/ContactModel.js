@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import { phonePattern } from "../constants/contactConstants.js";
 import { handleMongooseError } from "../helpers/handleMongooseError.js";
+import { setUpdateSettings } from "../helpers/setUpdateSettings.js";
 
 const contactSchema = new Schema(
     {
@@ -26,6 +27,10 @@ const contactSchema = new Schema(
 );
 
 contactSchema.post("save", handleMongooseError);
+
+contactSchema.pre("findOneAndUpdate", setUpdateSettings);
+
+contactSchema.post("findOneAndUpdate", handleMongooseError);
 
 const Contact = model("contact", contactSchema);
 
