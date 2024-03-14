@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import "dotenv/config";
 
+import authRouter from "./routes/authRouter.js";
 import contactsRouter from "./routes/contactsRouter.js";
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(logger(formatLogger));
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth", authRouter);
 app.use("/api/contacts", contactsRouter);
 
 app.use((_, res) => {

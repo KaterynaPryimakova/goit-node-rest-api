@@ -1,5 +1,4 @@
-import HttpError from "../helpers/HttpError.js";
-import ctrlWrapper from "../helpers/ctrlWrapper.js";
+import { HttpError, ctrlWrapper } from "../helpers/index.js";
 import contactsServices from "../services/contactsServices.js";
 
 const getAllContacts = async (_, res) => {

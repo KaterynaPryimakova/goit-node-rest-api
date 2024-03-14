@@ -1,7 +1,6 @@
 import express from "express";
 import contactsControllers from "../controllers/contactsControllers.js";
-import { validateBody } from "../helpers/validateBody.js";
-import { isValidId } from "../helpers/validateId.js";
+import { validateBody, isValidId } from "../helpers/index.js";
 import {
     createContactSchema,
     updateContactSchema,
