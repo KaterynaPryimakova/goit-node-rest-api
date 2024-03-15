@@ -36,11 +36,14 @@ const signIn = async (req, res) => {
         throw HttpError(401, "Email or password is wrong");
     }
 
+    const { _id: id } = user;
+
     const payload = {
-        id: user._id,
+        id,
     };
 
     const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+    await User.findOneAndUpdate({ _id: id }, { token });
 
     res.json({
         token,
@@ -48,7 +51,26 @@ const signIn = async (req, res) => {
     });
 };
 
+const getCurrent = async (req, res) => {
+    const { email, subscription } = req.user;
+    res.json({
+        email,
+        subscription,
+    });
+};
+
+const logout = async (req, res) => {
+    const { _id } = req.user;
+    User.findByIdAndUpdate(_id, { token: "" });
+
+    res.json({
+        message: "Logout success",
+    });
+};
+
 export default {
     signUp: ctrlWrapper(signUp),
     signIn: ctrlWrapper(signIn),
+    getCurrent: ctrlWrapper(getCurrent),
+    logout: ctrlWrapper(logout),
 };

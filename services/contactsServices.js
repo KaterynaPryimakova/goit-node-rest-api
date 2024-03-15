@@ -1,6 +1,10 @@
 import ContactModel from "../models/ContactModel.js";
 
-const listContacts = () => ContactModel.find();
+const listContacts = (filter = {}, query = {}) =>
+    ContactModel.find(filter, "-createdAt -updatedAt", query).populate(
+        "owner",
+        "name email"
+    );
 
 const addContact = (data) => ContactModel.create(data);
 

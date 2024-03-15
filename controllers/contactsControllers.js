@@ -1,8 +1,14 @@
 import { HttpError, ctrlWrapper } from "../helpers/index.js";
 import contactsServices from "../services/contactsServices.js";
 
-const getAllContacts = async (_, res) => {
-    const result = await contactsServices.listContacts();
+const getAllContacts = async (req, res) => {
+    const { _id: owner } = req.user;
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+    const result = await contactsServices.listContacts(
+        { owner },
+        { skip, limit }
+    );
     res.json(result);
 };
 
@@ -25,7 +31,8 @@ const deleteContact = async (req, res) => {
 };
 
 const createContact = async (req, res) => {
-    const result = await contactsServices.addContact(req.body);
+    const { _id: owner } = req.user;
+    const result = await contactsServices.addContact({ ...req.body, owner });
     res.status(201).json(result);
 };
 
