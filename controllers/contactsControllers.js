@@ -3,13 +3,17 @@ import contactsServices from "../services/contactsServices.js";
 
 const getAllContacts = async (req, res) => {
     const { _id: owner } = req.user;
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, favorite } = req.query;
     const skip = (page - 1) * limit;
     const result = await contactsServices.listContacts(
         { owner },
         { skip, limit }
     );
-    res.json(result);
+
+    const filteredContacts = result.filter(
+        (contact) => contact.favorite === Boolean(favorite)
+    );
+    res.json(filteredContacts);
 };
 
 const getOneContact = async (req, res) => {
