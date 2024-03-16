@@ -2,7 +2,6 @@ import express from "express";
 import { authenticate, validateBody } from "../middlewares/index.js";
 import { signInSchema, signUpSchema } from "../schemas/usersSchemas.js";
 import authControllers from "../controllers/authControllers.js";
-import ctrlWrapper from "../helpers/ctrlWrapper.js";
 
 const authRouter = express.Router();
 

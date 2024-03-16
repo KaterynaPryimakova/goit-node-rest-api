@@ -9,32 +9,22 @@ import {
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", authenticate, contactsControllers.getAllContacts);
+contactsRouter.use(authenticate);
 
-contactsRouter.get(
-    "/:id",
-    authenticate,
-    isValidId,
-    contactsControllers.getOneContact
-);
+contactsRouter.get("/", contactsControllers.getAllContacts);
 
-contactsRouter.delete(
-    "/:id",
-    authenticate,
-    isValidId,
-    contactsControllers.deleteContact
-);
+contactsRouter.get("/:id", isValidId, contactsControllers.getOneContact);
+
+contactsRouter.delete("/:id", isValidId, contactsControllers.deleteContact);
 
 contactsRouter.post(
     "/",
-    authenticate,
     validateBody(createContactSchema),
     contactsControllers.createContact
 );
 
 contactsRouter.put(
     "/:id",
-    authenticate,
     isValidId,
     validateBody(updateContactSchema),
     contactsControllers.updateContact
@@ -42,7 +32,6 @@ contactsRouter.put(
 
 contactsRouter.patch(
     "/:id/favorite",
-    authenticate,
     isValidId,
     validateBody(updateFavoriteSchema),
     contactsControllers.updateContact
