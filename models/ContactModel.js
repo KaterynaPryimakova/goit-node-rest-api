@@ -18,6 +18,9 @@ const contactSchema = new Schema(
             match: phonePattern,
             required: [true, "Set phone for contact"],
         },
+        avatar: {
+            type: String,
+        },
         favorite: {
             type: Boolean,
             default: false,
