@@ -20,6 +20,7 @@ const contactSchema = new Schema(
         },
         avatar: {
             type: String,
+            default: null,
         },
         favorite: {
             type: Boolean,

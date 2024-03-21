@@ -1,11 +1,8 @@
 import { HttpError, ctrlWrapper } from "../helpers/index.js";
 import contactsServices from "../services/contactsServices.js";
+import Jimp from "jimp";
 import fs from "fs/promises";
 import path from "path";
-// import Jimp from "jimp";
-
-const avatarPath = path.resolve("public", "avatars");
-
 const getAllContacts = async (req, res) => {
     const { _id: owner } = req.user;
     const { page = 1, limit = 10, favorite } = req.query;
@@ -43,21 +40,15 @@ const createContact = async (req, res) => {
     const { _id: owner } = req.user;
     const { path: oldPath, filename } = req.file;
 
-    // Jimp.read(filename)
-    //     .then((name) => {
-    //         return name
-    //             .resize(250, 250) // resize
-    //             .quality(60) // set JPEG quality
-    //             .greyscale() // set greyscale
-    //             .write("lena-small-bw.jpg"); // save
-    //     })
-    //     .catch((err) => {
-    //         HttpError(400, `Error Jimp>>>${err.message}`);
-    //     });
+    const avatarPath = path.resolve("public", "avatars");
 
     const newPath = path.join(avatarPath, filename);
     fs.rename(oldPath, newPath);
-    const avatar = path.join("public", "avatars", filename);
+
+    const image = await Jimp.read(newPath);
+    await image.resize(250, 250).quality(80).writeAsync(newPath);
+
+    const avatar = path.join("avatars", filename);
     const result = await contactsServices.addContact({
         ...req.body,
         avatar,
@@ -82,3 +73,14 @@ export default {
     createContact: ctrlWrapper(createContact),
     updateContact: ctrlWrapper(updateContact),
 };
+// Jimp.read(filename)
+//     .then((name) => {
+//         return name
+//             .resize(250, 250) // resize
+//             .quality(60) // set JPEG quality
+//             .greyscale() // set greyscale
+//             .write("lena-small-bw.jpg"); // save
+//     })
+//     .catch((err) => {
+//         HttpError(400, `Error Jimp>>>${err.message}`);
+//     });

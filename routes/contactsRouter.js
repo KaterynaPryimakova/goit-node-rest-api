@@ -1,12 +1,16 @@
 import express from "express";
 import contactsControllers from "../controllers/contactsControllers.js";
-import { validateBody, isValidId, authenticate } from "../middlewares/index.js";
+import {
+    validateBody,
+    isValidId,
+    authenticate,
+    upload,
+} from "../middlewares/index.js";
 import {
     createContactSchema,
     updateContactSchema,
     updateFavoriteSchema,
 } from "../schemas/contactsSchemas.js";
-import upload from "../middlewares/upload.js";
 
 const contactsRouter = express.Router();
 
