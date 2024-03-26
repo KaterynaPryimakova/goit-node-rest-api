@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
 import * as authServices from "../services/authServices.js";
-import { HttpError, ctrlWrapper } from "../helpers/index.js";
+import { HttpError, ctrlWrapper, sendEmail } from "../helpers/index.js";
 import Jimp from "jimp";
 import fs from "fs/promises";
 import path from "path";
+import { nanoid } from "nanoid";
 
-const { SECRET_KEY } = process.env;
+const { SECRET_KEY, BASE_URL } = process.env;
 const avatarPath = path.resolve("public", "avatars");
 
 const signUp = async (req, res) => {
@@ -16,7 +17,20 @@ const signUp = async (req, res) => {
         throw HttpError(409, "Email already in use");
     }
 
-    const newUser = await authServices.signup(req.body);
+    const verificationCode = nanoid();
+
+    const newUser = await authServices.signup({
+        ...req.body,
+        verificationCode,
+    });
+
+    const verifyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a href="${BASE_URL}/api/users/verify/${verificationCode}" target="_blank">Click here to verify email</a>`,
+    };
+
+    await sendEmail(verifyEmail);
 
     res.status(201).json({
         user: { email: newUser.email, subscription: newUser.subscription },
@@ -29,6 +43,10 @@ const signIn = async (req, res) => {
 
     if (!user) {
         throw HttpError(401, "Email or password is wrong");
+    }
+
+    if (!user.verify) {
+        throw HttpError(401, "Email is not verified");
     }
 
     const passwordCompare = await authServices.validatePassword(
@@ -52,6 +70,49 @@ const signIn = async (req, res) => {
     res.json({
         token,
         user: { email: user.email, subscription: user.subscription },
+    });
+};
+
+const verify = async (req, res) => {
+    const { verificationCode } = req.params;
+    const user = await authServices.findUser({ verificationCode });
+
+    if (!user) {
+        throw HttpError(404, "User not found");
+    }
+
+    await authServices.updateUser(
+        { _id: user._id },
+        { verify: true, verificationCode: "" }
+    );
+
+    res.json({
+        message: "Verification successful",
+    });
+};
+
+const resendVerify = async (req, res) => {
+    const { email } = req.body;
+    const user = await authServices.findUser({ email });
+
+    if (!user) {
+        throw HttpError(404);
+    }
+
+    if (user.verify) {
+        throw HttpError(400, "Verification has already been passed");
+    }
+
+    const verifyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a href="${BASE_URL}/api/users/verify/${user.verificationCode}" target="_blank">Click here to verify email</a>`,
+    };
+
+    await sendEmail(verifyEmail);
+
+    res.json({
+        message: "Email successfully sent",
     });
 };
 
@@ -96,4 +157,6 @@ export default {
     getCurrent: ctrlWrapper(getCurrent),
     logout: ctrlWrapper(logout),
     updateAvatar: ctrlWrapper(updateAvatar),
+    verify: ctrlWrapper(verify),
+    resendVerify: ctrlWrapper(resendVerify),
 };
